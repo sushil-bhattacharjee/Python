@@ -7,7 +7,7 @@ requests.packages.urllib3.disable_warnings()
 headers = {"Accept": "application/yang-data+json"}
 
 device = {
-    "host": "10.1.10.29",
+    "host": "10.1.10.77",
     "port": "443",
     "user": "sushil",
     "password": "sushil"
