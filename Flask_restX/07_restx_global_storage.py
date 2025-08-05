@@ -32,5 +32,17 @@ class BookLibrary(Resource):
             "books": books,
             'total': len(books)
         }, 200
+@api.route("/books/summary")
+class BookSummary(Resource):
+    def get(self):
+        summary = {
+            "fiction": 0,
+            "non-fiction": 0,
+            "mystery": 0,
+            "romance": 0
+        }
+        for book in books:
+            summary[book['genre']] += 1
+        return summary, 200
 if __name__ == '__main__':
     app.run(debug=True)
