@@ -28,11 +28,14 @@ query_parser.add_argument('id_search', type=int)
 query_parser.add_argument('name_search')
 query_parser.add_argument('grade_search', choices=['A', 'B', 'C', 'D', 'E', 'F'])
 
+# Parser for the PATCH
+patch_parser = reqparse.RequestParser()
+patch_parser.add_argument('name_search', location='json')
+patch_parser.add_argument('grade_search', choices=['A', 'B', 'C', 'D', 'E', 'F'], location='json')
 # Parser for the POST
-post_parser = query_parser.copy()
-post_parser.replace_argument('id_search', type=int, location='json')
-post_parser.replace_argument('name_search', location='json')
-post_parser.replace_argument('grade_search', choices=['A', 'B', 'C', 'D', 'E', 'F'], location='json')
+post_parser = patch_parser.copy()
+post_parser.add_argument('id_search', type=int, location='json')
+
 
 @api.route("/students")
 class StudentSearch(Resource):
@@ -58,7 +61,7 @@ class NewStudent(Resource):
         })
         return {"message": "new student added"}, 201
 #In case if you want to contibue with marsha_with and print the new student details
-@api.route("/studend/wMarshal/post")
+@api.route("/studend/wMarshalADD")
 class NewStudenwMarshal(Resource):
     @marshal_with(student_inv)
     @api.expect(post_parser)
@@ -71,5 +74,38 @@ class NewStudenwMarshal(Resource):
         }
         students_list.append(new_student)
         return new_student, 201
+@api.route("/students/<int:id>")
+class RemoveStudent(Resource):
+    def delete(self, id):
+        global students_list 
+        original_count = len(students_list)
+        student_list = [u for u in students_list if u["id"] != id ]
+        if len(students_list) < original_count:
+            return {"message": f"Student '{id} deleted successfully"}, 200
+        else:
+            return {"error": f"Student '{id} NOT FOUND"}, 400
+        
+@api.route("/students/wmarshal/<int:id>")
+class RemoveStudentsMarshal(Resource):
+    @marshal_with(student_inv)
+    def delete(self, id):
+        global students_list
+        for i, v in enumerate(students_list):
+            if v["id"] == id:
+                deleted = students_list.pop(i)
+                return deleted, 202
+        return {"error": f"Student with ID {id} not found."}, 404
+    @marshal_with(student_inv)
+    @api.expect(patch_parser)
+    def patch(self, id):
+        args = patch_parser.parse_args()
+        for student in students_list:
+            if student["id"] == id:
+                if args.name_search:
+                    student['name'] = args.name_search
+                if args.grade_search:
+                    student["grade"] = args.grade_search
+                return student, 200
+        return {"error": f"Student with ID {id} not found"}, 404
 if __name__ == '__main__':
     app.run(debug=True, port=4999)
