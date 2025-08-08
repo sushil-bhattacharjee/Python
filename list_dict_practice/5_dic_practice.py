@@ -15,5 +15,5 @@ print("\nGet 'George Orwell':", fav_authr.get("George Orwell"))  # exists
 print("Get 'Dan Brown':", fav_authr.get("Dan Brown"))  # was deleted, returns None
     
 # Step 6: Wildcard search (e.g., any title that has 'har' in it)
-wild_result = [author for author, book in fav_authr.items() if "har" in book.lower()]
+wild_result = [key for key, value in fav_authr.items() if "har" in value.lower()]
 print("\nWildcard search (book titles with 'har'):", wild_result)
